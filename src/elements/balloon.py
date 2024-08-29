@@ -8,19 +8,21 @@ class Color(Enum):
     purple = 4
     pink = 5
 
+
+
 class Balloon(pg.sprite.Sprite):
-    def __init__(self, color, pos, *groups):
+    def __init__(self, color, *groups, pos=(50, 50)):
         """
         Initialize a new Balloon instance.
 
         Args:
             color (Color): The color of the balloon.
-            pos (tuple): The initial position of the balloon.
             *groups (pg.sprite.Group): Groups to which the balloon belongs.
+            pos (tuple): The initial position of the balloon.
         """
-        pg.sprite.Sprite.__init__(*groups)
-        self.image = pg.Surface((50, 50))
-        self.image.fill(color)
+        pg.sprite.Sprite.__init__(self, *groups)
+        img = pg.image.load(f"src/assets/balloons/{color.name}.png")
+        self.image = pg.transform.scale(img.subsurface(img.get_bounding_rect()), (25, 35))
         self.rect = self.image.get_rect(center=pos)
         self.speed = pg.math.Vector2(0, 0)
         self.pos = pg.math.Vector2(pos)
