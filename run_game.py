@@ -1,5 +1,14 @@
 import pygame as pg
 from src.elements.board import Board
+from src.elements.narrator import Narrator
+
+def draw_elements(screen, bg, board, sparty):
+    screen.blit(bg, (0, 0))
+    board.draw(screen)
+    sparty.draw(screen)
+    pg.display.flip()
+
+
 
 def main():
     pg.init()
@@ -13,9 +22,9 @@ def main():
     background.fill((50, 50, 50))
 
     board = Board()
+    sparty = Narrator()
 
-    screen.blit(background, (0, 0))
-    pg.display.flip()
+    draw_elements(screen, background, board, sparty)
 
     going = True
     while going:
@@ -23,9 +32,7 @@ def main():
             if event.type == pg.QUIT:
                 going = False
 
-        screen.blit(background, (0, 0))
-        board.draw(screen)
-        pg.display.flip()
+        draw_elements(screen, background, board, sparty)
 
     pg.quit()
 
