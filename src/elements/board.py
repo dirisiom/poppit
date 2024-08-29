@@ -13,6 +13,8 @@ def create_balloon(pos):
 class Board:
     def __init__(self):
         self.table = []
+        self.gifts = set()
+
         position = (120, 50)
         for i in range(COL_LEN):
             self.table.append([])
@@ -20,7 +22,15 @@ class Board:
                 self.table[i].append(create_balloon(position))
                 position = (position[0] + 50, position[1])
             position = (120, position[1] + 50)
-        print()
+
+        for i in range(15):
+            while True:
+                x = random.randint(0, 9)
+                y = random.randint(0, 14)
+                if (x, y) not in self.gifts:
+                    self.gifts.add((x, y))
+                    break
+
 
     def draw(self, screen):
         for row in self.table:
