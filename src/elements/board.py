@@ -33,7 +33,14 @@ class Board:
 
 
     def draw(self, screen):
-        for row in self.table:
-            for balloon in row:
-                balloon.draw(screen)
+        gift_img = pg.image.load("src/assets/gift-box.svg")
+        gift_img = pg.transform.scale(gift_img, (20, 20))
+        gift_rect = gift_img.get_rect()
 
+        for row in range(COL_LEN):
+            for col in range(ROW_LEN):
+                balloon = self.table[row][col]
+                if balloon:
+                    balloon.draw(screen)
+                if (row, col) in self.gifts:
+                    screen.blit(gift_img, (120 + col * 50 - 10, 50 + row * 50 - 10))
