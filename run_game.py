@@ -37,7 +37,7 @@ def main():
                 pos = pg.mouse.get_pos()
                 hit = board.hit_test(pos)
                 if hit:
-                    print(hit.pos)
+                    match_group = board.get_group(hit.index)
 
         draw_elements(screen, background, board, sparty)
 

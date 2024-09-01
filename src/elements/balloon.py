@@ -12,7 +12,7 @@ class Color(Enum):
 
 # noinspection PyCompatibility
 class Balloon(Element):
-    def __init__(self, color, *groups, pos=(50, 50)):
+    def __init__(self, color, index, *groups, pos=(50, 50)):
         """
         Initialize a new Balloon instance.
 
@@ -23,4 +23,5 @@ class Balloon(Element):
         """
         super().__init__(f"src/assets/balloons/{color.name}.png", (25, 35), pos, *groups)
         self.color = color
+        self.index = index
 
