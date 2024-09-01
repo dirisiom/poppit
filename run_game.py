@@ -32,6 +32,13 @@ def main():
             if event.type == pg.QUIT:
                 going = False
 
+            # click event handler that calls hit test on the board for the clicked location
+            if event.type == pg.MOUSEBUTTONDOWN:
+                pos = pg.mouse.get_pos()
+                hit = board.hit_test(pos)
+                if hit:
+                    print(hit.pos)
+
         draw_elements(screen, background, board, sparty)
 
     pg.quit()
