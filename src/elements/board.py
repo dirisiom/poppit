@@ -1,5 +1,6 @@
 import pygame as pg
 import random
+import bisect
 from src.elements.balloon import Balloon, Color
 
 # define constants for num of balloons in a row (15) and num in a column (10)
@@ -43,3 +44,24 @@ class Board:
                     balloon.draw(screen)
                 if (row, col) in self.gifts:
                     screen.blit(gift_img, (120 + col * 50 - 10, 50 + row * 50 - 10))
+
+
+    def hit_test(self, pos):
+        x, y = pos
+
+        row_idxs = [50 + i * 50 for i in range(COL_LEN)]
+        row_index = bisect.bisect_left(row_idxs, y) - 1
+
+        if row_index < 0 or row_index >= COL_LEN:
+            return None
+
+        col_idxs = [120 + j * 50 for j in range(ROW_LEN)]
+        col_index = bisect.bisect_left(col_idxs, x) - 1
+
+        if col_index < 0 or col_index >= ROW_LEN:
+            return None
+
+        balloon = self.table[row_index][col_index]
+        if balloon and balloon.rect.collidepoint(pos):
+            return balloon
+        return None
