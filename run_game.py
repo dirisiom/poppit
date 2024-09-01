@@ -38,9 +38,12 @@ def main():
                 hit = board.hit_test(pos)
                 if hit:
                     match_group = board.get_group(hit.index)
+                    if len(match_group) > 1:
+                        board.pop(match_group)
+                        # for index in match_group:
+                        #     board.table[index[0]][index[1]] = None
 
         draw_elements(screen, background, board, sparty)
-
     pg.quit()
 
 

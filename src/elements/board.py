@@ -8,9 +8,11 @@ from collections import deque
 ROW_LEN = 15  # num of columns
 COL_LEN = 10  # num of rows
 
+
 # "game board" that contains all the balloons, as well as powerups (Eventually)
 def create_balloon(pos, index):
     return Balloon(random.choice(list(Color)), index=index, pos=pos)
+
 
 class Board:
     def __init__(self):
@@ -32,7 +34,6 @@ class Board:
                 if (x, y) not in self.gifts:
                     self.gifts.add((x, y))
                     break
-
 
     def draw(self, screen):
         gift_img = pg.image.load("src/assets/gift-box.svg")
@@ -65,7 +66,7 @@ class Board:
 
                 # Check if the new position is within the board and not discovered
                 if ((new_row, new_col) not in discovered and
-                    0 <= new_row < COL_LEN and 0 <= new_col < ROW_LEN):
+                        0 <= new_row < COL_LEN and 0 <= new_col < ROW_LEN):
 
                     balloon = self.table[new_row][new_col]
                     if balloon and balloon.color == target:
@@ -73,11 +74,6 @@ class Board:
                         discovered.add((new_row, new_col))
 
         return result
-
-
-
-
-
 
     def hit_test(self, pos):
         x, y = pos
@@ -88,7 +84,7 @@ class Board:
         if row_index < 0 or row_index >= COL_LEN:
             return None
 
-        col_idxs = [120 - 35/2 + j * 50 for j in range(ROW_LEN)]
+        col_idxs = [120 - 35 / 2 + j * 50 for j in range(ROW_LEN)]
         col_index = bisect.bisect_left(col_idxs, x) - 1
 
         if col_index < 0 or col_index >= ROW_LEN:
@@ -98,3 +94,9 @@ class Board:
         if balloon and balloon.rect.collidepoint(pos):
             return balloon
         return None
+
+
+    def pop(self, group):
+        for curr in group:
+            r, c = curr
+            self.table[r][c] = None
