@@ -1,6 +1,9 @@
 import pygame as pg
+
 from src.elements.board import Board
 from src.elements.narrator import Narrator
+
+BACKGROUND_COLOR = (50, 50, 50)
 
 
 def draw_elements(screen, bg, board, sparty):
@@ -13,14 +16,12 @@ def draw_elements(screen, bg, board, sparty):
 
 def main():
     pg.init()
-    # make the window size unable to change
-
     screen = pg.display.set_mode((960, 800), display=0)
     pg.display.set_caption("Poppit")
 
     background = pg.Surface(screen.get_size())
     background = background.convert()
-    background.fill((50, 50, 50))
+    background.fill(BACKGROUND_COLOR)
 
     sparty = Narrator()
     board = Board(sparty)
