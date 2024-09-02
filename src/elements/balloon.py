@@ -11,7 +11,7 @@ class Color(Enum):
 
 
 class Balloon(Element):
-    def __init__(self, color, index, img_size=(25, 35), *groups):
+    def __init__(self, color, index, img_size, *groups):
         """
         Initialize a new Balloon instance.
 

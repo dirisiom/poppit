@@ -18,7 +18,7 @@ SPACE: int = 50
 
 
 def create_balloon(index: Tuple[int, int]) -> Balloon:
-    return Balloon(random.choice(list(Color)), index=index)
+    return Balloon(random.choice(list(Color)), index=index, img_size=BALLOON_SIZE)
 
 
 class Board:
