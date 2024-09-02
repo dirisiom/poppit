@@ -58,7 +58,7 @@ class Element(pg.sprite.Sprite):
             return
         self.destination = target
         direction = target - self.pos
-        self.speed = direction.normalize()
+        self.speed = direction.normalize() * 2
 
     def stop(self):
         """
