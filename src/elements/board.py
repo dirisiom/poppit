@@ -92,6 +92,14 @@ class Board:
             return balloon
         return None
 
+    def check_gifts(self):
+        to_delete = set()
+        for gift in self.gifts:
+            if not self.table[gift[0]][gift[1]]:
+                to_delete.add(gift)
+        for gift in to_delete:
+            self.gifts.remove(gift)
+
 
     def pop(self, group):
         for r, c in group:
@@ -122,6 +130,8 @@ class Board:
                 new_index = curr.index
                 self.table[old_index[0]][old_index[1]] = None
                 self.table[new_index[0]][new_index[1]] = curr
+
+        self.check_gifts()
 
 
 
