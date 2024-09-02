@@ -2,7 +2,7 @@ import pygame as pg
 import random
 import bisect
 from src.elements.balloon import Balloon, Color
-from collections import deque
+from collections import deque, defaultdict
 
 # define constants for num of balloons in a row (15) and num in a column (10)
 ROW_LEN = 15  # num of columns
@@ -10,8 +10,8 @@ COL_LEN = 10  # num of rows
 
 
 # "game board" that contains all the balloons, as well as powerups (Eventually)
-def create_balloon(pos, index):
-    return Balloon(random.choice(list(Color)), index=index, pos=pos)
+def create_balloon(index):
+    return Balloon(random.choice(list(Color)), index=index)
 
 
 class Board:
@@ -19,13 +19,10 @@ class Board:
         self.table = []
         self.gifts = set()
 
-        position = (120, 50)
         for i in range(COL_LEN):
             self.table.append([])
             for j in range(ROW_LEN):
-                self.table[i].append(create_balloon(position, (i, j)))
-                position = (position[0] + 50, position[1])
-            position = (120, position[1] + 50)
+                self.table[i].append(create_balloon((i, j)))
 
         for i in range(15):
             while True:
@@ -97,6 +94,34 @@ class Board:
 
 
     def pop(self, group):
-        for curr in group:
-            r, c = curr
+        for r, c in group:
             self.table[r][c] = None
+        self.float(group)
+
+    def float(self, popped):
+        done = set()
+        for r, c in popped:
+            if c in done:
+                continue
+            done.add(c)
+
+            shifts = dict()
+
+            for i in range(COL_LEN-1, -1, -1):
+                if self.table[i][c]:
+                    shifts[self.table[i][c]] = 0
+                else:
+                    for k in shifts:
+                        shifts[k] += 1
+
+
+            # iterate over the dictionary in reverse order
+            for curr, spaces in reversed(shifts.items()):
+                old_index = curr.index
+                curr.move_up(spaces)
+                new_index = curr.index
+                self.table[old_index[0]][old_index[1]] = None
+                self.table[new_index[0]][new_index[1]] = curr
+
+
+

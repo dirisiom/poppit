@@ -14,7 +14,7 @@ def main():
     pg.init()
     # make the window size unable to change
 
-    screen = pg.display.set_mode((960, 800))
+    screen = pg.display.set_mode((960, 800), display=0)
     pg.display.set_caption("Poppit")
 
     background = pg.Surface(screen.get_size())
@@ -40,8 +40,9 @@ def main():
                     match_group = board.get_group(hit.index)
                     if len(match_group) > 1:
                         board.pop(match_group)
-                        # for index in match_group:
-                        #     board.table[index[0]][index[1]] = None
+                        # refresh the drawing so elements are drawn in their new location
+                        draw_elements(screen, background, board, sparty)
+
 
         draw_elements(screen, background, board, sparty)
     pg.quit()
