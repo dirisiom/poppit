@@ -2,47 +2,57 @@ import pygame as pg
 import random
 import bisect
 from src.elements.balloon import Balloon, Color
-from collections import deque, defaultdict
+from collections import deque
+from typing import List, Optional, Set, Tuple
 
-# define constants for num of balloons in a row (15) and num in a column (10)
-ROW_LEN = 15  # num of columns
-COL_LEN = 10  # num of rows
+ROW_LEN: int = 15  # num of columns
+COL_LEN: int = 10  # num of rows
+
+GIFT_SIZE: Tuple[int, int] = (20, 20)
+BALLOON_SIZE: Tuple[int, int] = (25, 35)
+
+X_START: int = 120
+Y_START: int = 50
+
+SPACE: int = 50
 
 
-# "game board" that contains all the balloons, as well as powerups (Eventually)
-def create_balloon(index):
+def create_balloon(index: Tuple[int, int]) -> Balloon:
     return Balloon(random.choice(list(Color)), index=index)
 
 
 class Board:
-    def __init__(self, narrator):
-        self.table = []
-        self.narr = narrator
-        self.popped = None
-        self.gifts = set()
+    def __init__(self, narrator: pg.sprite.Sprite) -> None:
+        self.table: List[List[Optional[Balloon]]] = [[None for _ in range(ROW_LEN)] for _ in range(COL_LEN)]
+        self.narr: pg.sprite.Sprite = narrator
+        self.popped: Optional[Set[Tuple[int, int]]] = None
+        self.gifts: Set[Tuple[int, int]] = set()
 
         for i in range(COL_LEN):
-            self.table.append([])
             for j in range(ROW_LEN):
-                self.table[i].append(create_balloon((i, j)))
+                self.table[i][j] = create_balloon((i, j))
 
-        for i in range(15):
+        for _ in range(15):
             while True:
-                x = random.randint(0, 9)
-                y = random.randint(0, 14)
+                x = random.randint(0, COL_LEN - 1)
+                y = random.randint(0, ROW_LEN - 1)
                 if (x, y) not in self.gifts:
                     self.gifts.add((x, y))
                     break
 
-    def update(self):
+    def update(self) -> None:
         self.narr.update()
         if self.popped:
             self.float(self.popped)
             self.popped = None
 
-    def draw(self, screen):
+    def draw(self, screen: pg.Surface) -> None:
+        def gift_location(index: Tuple[int, int]) -> Tuple[float, float]:
+            return (X_START + index[1] * SPACE - GIFT_SIZE[0] / 2,
+                    Y_START + index[0] * SPACE - GIFT_SIZE[1] / 2)
+
         gift_img = pg.image.load("src/assets/gift-box.svg")
-        gift_img = pg.transform.scale(gift_img, (20, 20))
+        gift_img = pg.transform.scale(gift_img, GIFT_SIZE)
 
         for row in range(COL_LEN):
             for col in range(ROW_LEN):
@@ -50,16 +60,17 @@ class Board:
                 if balloon:
                     balloon.draw(screen)
                 if (row, col) in self.gifts:
-                    screen.blit(gift_img, (120 + col * 50 - 10, 50 + row * 50 - 10))
+                    screen.blit(gift_img, gift_location((row, col)))
 
-    def get_group(self, index: tuple):
+    def get_group(self, index: Tuple[int, int]) -> Set[Tuple[int, int]]:
         start = self.table[index[0]][index[1]]
+        if not start:
+            return set()
         target = start.color
 
-        result = set()
-
-        queue = deque([start.index])
-        discovered = {start.index}
+        result: Set[Tuple[int, int]] = set()
+        queue: deque[Tuple[int, int]] = deque([start.index])
+        discovered: Set[Tuple[int, int]] = {start.index}
 
         while queue:
             curr = queue.popleft()
@@ -69,7 +80,6 @@ class Board:
             for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
                 new_row, new_col = r + dr, c + dc
 
-                # Check if the new position is within the board and not discovered
                 if ((new_row, new_col) not in discovered and
                         0 <= new_row < COL_LEN and 0 <= new_col < ROW_LEN):
 
@@ -77,19 +87,19 @@ class Board:
                     if balloon and balloon.color == target:
                         queue.append(balloon.index)
                         discovered.add((new_row, new_col))
-
         return result
 
-    def hit_test(self, pos):
+    def hit_test(self, pos: Tuple[int, int]) -> Optional[Balloon]:
         x, y = pos
+        balloon_width, balloon_height = BALLOON_SIZE
 
-        row_idxs = [25 + i * 50 for i in range(COL_LEN)]
+        row_idxs = [Y_START - balloon_height / 2 + i * SPACE for i in range(COL_LEN)]
         row_index = bisect.bisect_left(row_idxs, y) - 1
 
         if row_index < 0 or row_index >= COL_LEN:
             return None
 
-        col_idxs = [120 - 35 / 2 + j * 50 for j in range(ROW_LEN)]
+        col_idxs = [X_START - balloon_width / 2 + j * SPACE for j in range(ROW_LEN)]
         col_index = bisect.bisect_left(col_idxs, x) - 1
 
         if col_index < 0 or col_index >= ROW_LEN:
@@ -100,27 +110,27 @@ class Board:
             return balloon
         return None
 
-    def check_gifts(self):
-        to_delete = set()
+    def check_gifts(self) -> None:
+        to_delete: Set[Tuple[int, int]] = set()
         for gift in self.gifts:
             if not self.table[gift[0]][gift[1]]:
                 to_delete.add(gift)
         for gift in to_delete:
             self.gifts.remove(gift)
 
-    def pop(self, group):
+    def pop(self, group: Set[Tuple[int, int]]) -> None:
         for r, c in group:
             self.table[r][c] = None
         self.popped = group
 
-    def float(self, popped):
-        done = set()
+    def float(self, popped: Set[Tuple[int, int]]) -> None:
+        done: Set[int] = set()
         for r, c in popped:
             if c in done:
                 continue
             done.add(c)
 
-            shifts = dict()
+            shifts: dict[Balloon, int] = {}
 
             for i in range(COL_LEN - 1, -1, -1):
                 if self.table[i][c]:
@@ -129,7 +139,6 @@ class Board:
                     for k in shifts:
                         shifts[k] += 1
 
-            # iterate over the dictionary in reverse order
             for curr, spaces in reversed(shifts.items()):
                 old_index = curr.index
                 curr.move_up(spaces)

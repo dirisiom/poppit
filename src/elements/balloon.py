@@ -10,7 +10,6 @@ class Color(Enum):
     pink = 5
 
 
-# noinspection PyCompatibility
 class Balloon(Element):
     def __init__(self, color, index, img_size=(25, 35), *groups):
         """
@@ -21,7 +20,7 @@ class Balloon(Element):
             *groups (pg.sprite.Group): Groups to which the balloon belongs.
             pos (tuple): The initial position of the balloon.
         """
-        super().__init__(f"src/assets/balloons/{color.name}.png", img_size, *groups, pos=(0,0))
+        super().__init__(f"src/assets/balloons/{color.name}.png", img_size, *groups, pos=(0, 0))
         self.color = color
         self.index = index
         self.set_index(index)
