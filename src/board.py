@@ -5,10 +5,15 @@ from src.elements.balloon import Balloon, Color
 from collections import deque
 from typing import List, Optional, Set, Tuple
 
+from src.elements.gift import Gift
+
 ROW_LEN: int = 15  # num of columns
 COL_LEN: int = 10  # num of rows
 
+GIFT_COUNT: int = 15
 GIFT_SIZE: Tuple[int, int] = (20, 20)
+GIFT_X = 200
+GIFT_Y = 650
 BALLOON_SIZE: Tuple[int, int] = (25, 35)
 
 X_START: int = 120
@@ -26,28 +31,43 @@ class Board:
         self.table: List[List[Optional[Balloon]]] = [[None for _ in range(ROW_LEN)] for _ in range(COL_LEN)]
         self.narr: pg.sprite.Sprite = narrator
         self.popped: Optional[Set[Tuple[int, int]]] = None
-        self.gifts: Set[Tuple[int, int]] = set()
+        self.gift_locations: Set[Tuple[int, int]] = set()
+        self.gifts: Set[Gift] = set()
+        self.gift_target = (GIFT_X, GIFT_Y)
 
         for i in range(COL_LEN):
             for j in range(ROW_LEN):
                 self.table[i][j] = create_balloon((i, j))
 
-        for _ in range(15):
+        for _ in range(GIFT_COUNT):
             while True:
                 x = random.randint(0, COL_LEN - 1)
                 y = random.randint(0, ROW_LEN - 1)
-                if (x, y) not in self.gifts:
-                    self.gifts.add((x, y))
+                if (x, y) not in self.gift_locations:
+                    self.gift_locations.add((x, y))
                     break
+
+    def calculate_position(self, index: Tuple[int, int]) -> Tuple[float, float]:
+        # TODO change when board can be squished
+        return (X_START + index[1] * SPACE - GIFT_SIZE[0] / 2,
+                Y_START + index[0] * SPACE - GIFT_SIZE[1] / 2)
+
+    def get_gift_target(self) -> Tuple[int, int]:
+        result = self.gift_target
+        self.gift_target = (self.gift_target[0] + SPACE * 2, self.gift_target[1])
+        return result
 
     def update(self) -> None:
         self.narr.update()
         if self.popped:
             self.float(self.popped)
             self.popped = None
+        gifts = self.gifts.copy()
+        for gift in gifts:
+            gift.update()
 
     def draw(self, screen: pg.Surface) -> None:
-        def gift_location(index: Tuple[int, int]) -> Tuple[float, float]:
+        def gift_image_location(index: Tuple[int, int]) -> Tuple[float, float]:
             return (X_START + index[1] * SPACE - GIFT_SIZE[0] / 2,
                     Y_START + index[0] * SPACE - GIFT_SIZE[1] / 2)
 
@@ -59,8 +79,11 @@ class Board:
                 balloon = self.table[row][col]
                 if balloon:
                     balloon.draw(screen)
-                if (row, col) in self.gifts:
-                    screen.blit(gift_img, gift_location((row, col)))
+                if (row, col) in self.gift_locations:
+                    screen.blit(gift_img, gift_image_location((row, col)))
+
+        for gift in self.gifts:
+            gift.draw(screen)
 
     def get_group(self, index: Tuple[int, int]) -> Set[Tuple[int, int]]:
         start = self.table[index[0]][index[1]]
@@ -112,11 +135,13 @@ class Board:
 
     def check_gifts(self) -> None:
         to_delete: Set[Tuple[int, int]] = set()
-        for gift in self.gifts:
-            if not self.table[gift[0]][gift[1]]:
-                to_delete.add(gift)
-        for gift in to_delete:
-            self.gifts.remove(gift)
+        for gift_idx in self.gift_locations:
+            if not self.table[gift_idx[0]][gift_idx[1]]:
+                to_delete.add(gift_idx)
+        for gift_idx in to_delete:
+            target = self.get_gift_target()
+            self.gifts.add(Gift(self.calculate_position(gift_idx), target=target))
+            self.gift_locations.remove(gift_idx)
 
     def pop(self, group: Set[Tuple[int, int]]) -> None:
         for r, c in group:

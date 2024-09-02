@@ -1,6 +1,6 @@
 import pygame as pg
 
-from src.elements.board import Board
+from src.board import Board
 from src.elements.narrator import Narrator
 
 BACKGROUND_COLOR = (50, 50, 50)
@@ -36,6 +36,7 @@ def main():
 
             # click event handler that calls hit test on the board for the clicked location
             if event.type == pg.MOUSEBUTTONDOWN:
+                # sparty.move_towards(pg.mouse.get_pos())
                 pos = pg.mouse.get_pos()
                 hit = board.hit_test(pos)
                 if hit:

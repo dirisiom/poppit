@@ -52,11 +52,11 @@ class Element(pg.sprite.Sprite):
         Move the element towards a target position.
 
         Args:
-            target (pg.math.Vector2): The target position to move towards.
+            target (tuple[Int, Int]): The target position to move towards.
         """
         if target == self.pos:
             return
-        self.destination = target
+        self.destination = pg.math.Vector2(target)
         direction = target - self.pos
         self.speed = direction.normalize() * 2
 

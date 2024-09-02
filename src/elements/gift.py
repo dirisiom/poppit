@@ -3,17 +3,23 @@ import pygame as pg
 from src.elements.element import Element
 
 class Gift(Element):
-    def __init__(self, pos, *groups):
+    def __init__(self, pos, target, *groups):
         """
         Initialize a new Gift instance.
 
         Args:
             *groups (pg.sprite.Group): Groups to which the gift belongs.
         """
-        super().__init__("src/assets/gifts/duck.jpg", (50, 50), (0, 0), *groups)
-        self.pos = pg.math.Vector2((50, 50))
-        self.rect = self.image.get_rect(center=self.pos)
+        super().__init__("src/assets/gifts/duck.jpg", (50, 50), pos=pos, *groups)
+        self.move_towards(target)
+        self.done = False
 
-    def set_pos(self, pos):
-        self.pos = pos
-        self.rect = self.image.get_rect(center=self.pos)
+
+    def update(self):
+        if not self.done:
+            super().update()
+        # eventually, this will make the gift float down a little slowly and oscillate back and forth like a parachute
+
+    def stop(self):
+        super().stop()
+        self.done = True
