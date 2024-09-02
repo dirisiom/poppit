@@ -23,8 +23,9 @@ def main():
     background = background.convert()
     background.fill(BACKGROUND_COLOR)
 
-    sparty = Narrator()
-    board = Board(sparty)
+    board = Board()
+    sparty = Narrator(cache=board.loader)
+    board.set_narrator(sparty)
 
     draw_elements(screen, background, board, sparty)
 

@@ -1,7 +1,7 @@
 import pygame as pg
 # make element a subclass of pygame.sprite.Sprite for other current elements to inherit from
 class Element(pg.sprite.Sprite):
-    def __init__(self, img_path, img_size, pos, *groups):
+    def __init__(self, img, img_size, pos, *groups):
         """
         Initialize a new Element instance.
 
@@ -9,7 +9,6 @@ class Element(pg.sprite.Sprite):
             *groups (pg.sprite.Group): Groups to which the element belongs.
         """
         pg.sprite.Sprite.__init__(self, *groups)
-        img = pg.image.load(img_path)
         self.image = pg.transform.scale(img.subsurface(img.get_bounding_rect()), img_size)
         self.pos = pg.math.Vector2(pos)
         self.rect = self.image.get_rect(center=self.pos)

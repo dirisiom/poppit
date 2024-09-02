@@ -6,6 +6,7 @@ from collections import deque
 from typing import List, Optional, Set, Tuple
 
 from src.elements.gift import Gift
+from src.loader import Loader
 
 ROW_LEN: int = 15  # num of columns
 COL_LEN: int = 10  # num of rows
@@ -22,22 +23,23 @@ Y_START: int = 50
 SPACE: int = 50
 
 
-def create_balloon(index: Tuple[int, int]) -> Balloon:
-    return Balloon(random.choice(list(Color)), index=index, img_size=BALLOON_SIZE)
+def create_balloon(index: Tuple[int, int], board) -> Balloon:
+    return Balloon(index=index, img_size=BALLOON_SIZE, cache=board.loader)
 
 
 class Board:
-    def __init__(self, narrator: pg.sprite.Sprite) -> None:
+    def __init__(self, narrator: pg.sprite.Sprite = None) -> None:
         self.table: List[List[Optional[Balloon]]] = [[None for _ in range(ROW_LEN)] for _ in range(COL_LEN)]
         self.narr: pg.sprite.Sprite = narrator
         self.popped: Optional[Set[Tuple[int, int]]] = None
         self.gift_locations: Set[Tuple[int, int]] = set()
         self.gifts: Set[Gift] = set()
         self.gift_target = (GIFT_X, GIFT_Y)
+        self.loader = Loader()
 
         for i in range(COL_LEN):
             for j in range(ROW_LEN):
-                self.table[i][j] = create_balloon((i, j))
+                self.table[i][j] = create_balloon((i, j), board=self)
 
         for _ in range(GIFT_COUNT):
             while True:
@@ -60,10 +62,9 @@ class Board:
     def update(self) -> None:
         self.narr.update()
         if self.popped:
-            self.float(self.popped)
+            self.float()
             self.popped = None
-        gifts = self.gifts.copy()
-        for gift in gifts:
+        for gift in self.gifts.copy():
             gift.update()
 
     def draw(self, screen: pg.Surface) -> None:
@@ -71,8 +72,7 @@ class Board:
             return (X_START + index[1] * SPACE - GIFT_SIZE[0] / 2,
                     Y_START + index[0] * SPACE - GIFT_SIZE[1] / 2)
 
-        gift_img = pg.image.load("src/assets/gift-box.svg")
-        gift_img = pg.transform.scale(gift_img, GIFT_SIZE)
+        gift_img = pg.transform.scale(self.loader.get_box(), GIFT_SIZE)
 
         for row in range(COL_LEN):
             for col in range(ROW_LEN):
@@ -140,7 +140,7 @@ class Board:
                 to_delete.add(gift_idx)
         for gift_idx in to_delete:
             target = self.get_gift_target()
-            self.gifts.add(Gift(self.calculate_position(gift_idx), target=target))
+            self.gifts.add(Gift(self.calculate_position(gift_idx), target=target, cache=self.loader))
             self.gift_locations.remove(gift_idx)
 
     def pop(self, group: Set[Tuple[int, int]]) -> None:
@@ -148,9 +148,9 @@ class Board:
             self.table[r][c] = None
         self.popped = group
 
-    def float(self, popped: Set[Tuple[int, int]]) -> None:
+    def float(self) -> None:
         done: Set[int] = set()
-        for r, c in popped:
+        for r, c in self.popped:
             if c in done:
                 continue
             done.add(c)
@@ -172,3 +172,6 @@ class Board:
                 self.table[new_index[0]][new_index[1]] = curr
 
         self.check_gifts()
+
+    def set_narrator(self, sparty):
+        self.narr = sparty

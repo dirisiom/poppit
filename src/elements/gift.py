@@ -3,14 +3,14 @@ import pygame as pg
 from src.elements.element import Element
 
 class Gift(Element):
-    def __init__(self, pos, target, *groups):
+    def __init__(self, pos, target, cache, *groups):
         """
         Initialize a new Gift instance.
 
         Args:
             *groups (pg.sprite.Group): Groups to which the gift belongs.
         """
-        super().__init__("src/assets/gifts/duck.jpg", (50, 50), pos=pos, *groups)
+        super().__init__(cache.get_gift("teddy.png"), (50, 50), pos=pos, *groups)
         self.move_towards(target)
         self.done = False
 

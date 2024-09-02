@@ -1,3 +1,5 @@
+import random
+
 import pygame as pg
 from src.elements.element import Element
 from enum import Enum
@@ -11,7 +13,7 @@ class Color(Enum):
 
 
 class Balloon(Element):
-    def __init__(self, color, index, img_size, *groups):
+    def __init__(self, index, img_size, cache, *groups):
         """
         Initialize a new Balloon instance.
 
@@ -20,8 +22,8 @@ class Balloon(Element):
             *groups (pg.sprite.Group): Groups to which the balloon belongs.
             pos (tuple): The initial position of the balloon.
         """
-        super().__init__(f"src/assets/balloons/{color.name}.png", img_size, *groups, pos=(0, 0))
-        self.color = color
+        self.color = random.choice(list(Color))
+        super().__init__(img=cache.get_balloon(self.color), img_size=img_size, *groups, pos=(0, 0))
         self.index = index
         self.set_index(index)
 
