@@ -2,12 +2,13 @@ import pygame as pg
 from src.elements.board import Board
 from src.elements.narrator import Narrator
 
+
 def draw_elements(screen, bg, board, sparty):
     screen.blit(bg, (0, 0))
+    board.update()
     board.draw(screen)
     sparty.draw(screen)
     pg.display.flip()
-
 
 
 def main():
@@ -21,8 +22,8 @@ def main():
     background = background.convert()
     background.fill((50, 50, 50))
 
-    board = Board()
     sparty = Narrator()
+    board = Board(sparty)
 
     draw_elements(screen, background, board, sparty)
 

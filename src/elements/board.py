@@ -15,8 +15,10 @@ def create_balloon(index):
 
 
 class Board:
-    def __init__(self):
+    def __init__(self, narrator):
         self.table = []
+        self.narr = narrator
+        self.popped = None
         self.gifts = set()
 
         for i in range(COL_LEN):
@@ -31,6 +33,12 @@ class Board:
                 if (x, y) not in self.gifts:
                     self.gifts.add((x, y))
                     break
+
+    def update(self):
+        self.narr.update()
+        if self.popped:
+            self.float(self.popped)
+            self.popped = None
 
     def draw(self, screen):
         gift_img = pg.image.load("src/assets/gift-box.svg")
@@ -100,11 +108,10 @@ class Board:
         for gift in to_delete:
             self.gifts.remove(gift)
 
-
     def pop(self, group):
         for r, c in group:
             self.table[r][c] = None
-        self.float(group)
+        self.popped = group
 
     def float(self, popped):
         done = set()
@@ -115,13 +122,12 @@ class Board:
 
             shifts = dict()
 
-            for i in range(COL_LEN-1, -1, -1):
+            for i in range(COL_LEN - 1, -1, -1):
                 if self.table[i][c]:
                     shifts[self.table[i][c]] = 0
                 else:
                     for k in shifts:
                         shifts[k] += 1
-
 
             # iterate over the dictionary in reverse order
             for curr, spaces in reversed(shifts.items()):
@@ -132,6 +138,3 @@ class Board:
                 self.table[new_index[0]][new_index[1]] = curr
 
         self.check_gifts()
-
-
-

@@ -14,6 +14,7 @@ class Element(pg.sprite.Sprite):
         self.pos = pg.math.Vector2(pos)
         self.rect = self.image.get_rect(center=self.pos)
         self.speed = pg.math.Vector2(0, 0)
+        self.destination = None
 
     def update(self):
         """
@@ -21,6 +22,21 @@ class Element(pg.sprite.Sprite):
         """
         self.pos += self.speed
         self.rect.center = self.pos
+        # stop if destination is reached
+        # check if the current location is beyond the destination, with the logic depending on the speed
+        if self.destination:
+            if self.speed.x > 0 and self.pos.x >= self.destination.x:
+                self.pos = self.destination
+                self.stop()
+            elif self.speed.x < 0 and self.pos.x <= self.destination.x:
+                self.pos = self.destination
+                self.stop()
+            elif self.speed.y > 0 and self.pos.y >= self.destination.y:
+                self.pos = self.destination
+                self.stop()
+            elif self.speed.y < 0 and self.pos.y <= self.destination.y:
+                self.pos = self.destination
+                self.stop()
 
     def draw(self, screen):
         """
@@ -38,11 +54,15 @@ class Element(pg.sprite.Sprite):
         Args:
             target (pg.math.Vector2): The target position to move towards.
         """
+        if target == self.pos:
+            return
+        self.destination = target
         direction = target - self.pos
-        self.speed = direction.normalize() * 2
+        self.speed = direction.normalize()
 
     def stop(self):
         """
         Stop the element's movement.
         """
         self.speed = pg.math.Vector2(0, 0)
+        self.destination = None
